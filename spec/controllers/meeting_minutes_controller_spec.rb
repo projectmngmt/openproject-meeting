@@ -18,17 +18,26 @@
 # See doc/COPYRIGHT.md for more details.
 #++
 
-class MeetingMailer < UserMailer
+require File.dirname(__FILE__) + '/../spec_helper'
 
-  def content_for_review(content, content_type, address)
-    @meeting = content.meeting
-    @content_type = content_type
-    @meeting_url = meeting_url @meeting
-    @project_url = project_url @meeting.project
-    open_project_headers 'Project' => @meeting.project.identifier,
-                         'Meeting-Id' => @meeting.id
+describe MeetingMinutesController do
+  let(:meeting) { FactoryGirl.create(:meeting) }
+  let(:user) { FactoryGirl.create(:admin) }
 
-    subject = "[#{@meeting.project.name}] #{I18n.t(:"label_#{content_type}")}: #{@meeting.title}"
-    mail to: address, subject: subject
+  before { User.stub(:current).and_return(user) }
+
+  describe 'preview' do
+    let(:text) { "Meeting minutes content" }
+
+    before { MeetingMinutes.any_instance.stub(:editable?).and_return(true) }
+
+    it_behaves_like 'valid preview' do
+      let(:preview_texts) { [text] }
+      let(:preview_params) { { meeting_id: meeting.id, meeting_minutes: { text: text } } }
+    end
+
+    it_behaves_like 'authorizes object access' do
+      let(:preview_params) { { meeting_id: meeting.id, meeting_minutes: { } } }
+    end
   end
 end
