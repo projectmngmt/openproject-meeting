@@ -18,8 +18,6 @@
 # See doc/COPYRIGHT.md for more details.
 #++
 
-# Prevent load-order problems in case openproject-plugins is listed after a plugin in the Gemfile
-# or not at all
 require 'open_project/plugins'
 
 module OpenProject::Meeting
@@ -30,7 +28,7 @@ module OpenProject::Meeting
 
     register 'openproject-meeting',
              :author_url => 'http://finn.de',
-             :requires_openproject => '>= 3.0.4' do
+             :requires_openproject => '>= 4.0.0' do
 
       project_module :meetings do
         permission :create_meetings, {:meetings => [:new, :create, :copy]}, :require => :member
@@ -69,6 +67,10 @@ module OpenProject::Meeting
     end
 
     patches [:Project]
+
+    initializer 'meeting.precompile_assets' do
+      Rails.application.config.assets.precompile += %w(meeting/meeting.css)
+    end
 
     initializer "meeting.register_hooks" do
       require 'open_project/meeting/hooks'

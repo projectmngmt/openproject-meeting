@@ -20,7 +20,7 @@
 
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe MeetingMailer do
+describe MeetingMailer, :type => :mailer do
   let(:role) { FactoryGirl.create(:role, permissions: [:view_meetings]) }
   let(:project) { FactoryGirl.create(:project) }
   let(:author) { FactoryGirl.create(:user, member_in_project: project, member_through_role: role) }
@@ -35,7 +35,7 @@ describe MeetingMailer do
     author.pref[:no_self_notified] = false
     author.save!
     meeting.participants.merge([meeting.participants.build(user: watcher1, invited: true, attended: false),
-                                meeting.participants.build(user: watcher1, invited: true, attended: false)])
+                                meeting.participants.build(user: watcher2, invited: true, attended: false)])
     meeting.save!
   end
 
@@ -51,10 +51,10 @@ describe MeetingMailer do
     end
 
     it "renders the headers" do
-      mail.subject.should include(meeting.project.name)
-      mail.subject.should include(meeting.title)
-      mail.from.should eq([Setting.mail_from])
-      mail.to.should eq([author.mail])
+      expect(mail.subject).to include(meeting.project.name)
+      expect(mail.subject).to include(meeting.title)
+      expect(mail.to).to match_array([author.mail])
+      expect(mail.from).to eq([Setting.mail_from])
     end
 
     it "renders the text body" do
@@ -67,14 +67,13 @@ describe MeetingMailer do
   end
 
   def check_meeting_mail_content(body)
-    body.should include(meeting.project.name)
-    body.should include(meeting.title)
-    body.should include(meeting_path meeting)
-    body.should include(i18n.format_date meeting.start_date)
-    body.should include(i18n.format_time meeting.start_time, false)
-    body.should include(i18n.format_time meeting.end_time, false)
-    body.should include(meeting.participants[0].name)
-    body.should include(meeting.participants[1].name)
+    expect(body).to include(meeting.project.name)
+    expect(body).to include(meeting.title)
+    expect(body).to include(i18n.format_date meeting.start_date)
+    expect(body).to include(i18n.format_time meeting.start_time, false)
+    expect(body).to include(i18n.format_time meeting.end_time, false)
+    expect(body).to include(meeting.participants[0].name)
+    expect(body).to include(meeting.participants[1].name)
   end
 
   def save_and_open_mail_html_body(mail)

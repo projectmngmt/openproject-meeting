@@ -36,7 +36,7 @@ describe MeetingContentsController do
     MeetingContentsController.any_instance.stub(:find_content)
     controller.stub!(:authorize)
     meeting.participants.merge([meeting.participants.build(user: watcher1, invited: true, attended: false),
-                                meeting.participants.build(user: watcher1, invited: true, attended: false)])
+                                meeting.participants.build(user: watcher2, invited: true, attended: false)])
     meeting.save!
     controller.instance_variable_set(:@content, meeting_agenda.meeting.agenda)
     controller.instance_variable_set(:@content_type, 'meeting_agenda')

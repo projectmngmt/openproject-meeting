@@ -21,6 +21,11 @@ See doc/COPYRIGHT.md for more details.
 
 # Changelog
 
+## 3.0.8
+
+* new version scheme
+* `#1565` Fix: Not possible to withdraw invitation of inactive users
+
 ## 3.0.10
 
 * `#5061` Add label for meeting time selection
